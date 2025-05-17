@@ -8,14 +8,18 @@
 				  :data-target="'move-box-' + index"
 				  @tap="linkTo" :data-url="'/pages/mall/goods/detail?id='+item.topic_id">
 				<view class="image-wrapper radius lg">
-					<image :src="item.favoriteable.cover" mode="aspectFit" lazy-load="true"></image>
+					<image :src="item.favoriteable.cover+'?imageView2/0/q/75/w/160/h/160'" mode="aspectFill"
+						   lazy-load="true"></image>
 				</view>
 				<view class="content flex-sub padding-lr-sm">
-					<view class="title ellipsis-2 text-black">{{ item.favoriteable.title }}</view>
-					<view class="margin-top-xs">
-						<text class="text-price text-red text-xl">{{ item.favoriteable.price }}</text>
-						<text class="text-price m-price"
-							  style="vertical-align: middle;">{{ item.favoriteable.market_price }}</text>
+					<view class="title ellipsis text-black">
+						{{ item.favoriteable.title }}
+						<text class="cuIcon-likefill text-red unfavorite-icon" @tap.stop="unFavorite(index)"></text>
+					</view>
+					<view class="tags margin-top-xs" style="height: 38px;">
+						<view class="cu-tag light bg-red sm"
+							  v-for="tag in item.favoriteable.tags" :key="tag.id">{{tag.title}}</view>
+						<view class="cu-tag light bg-red sm" v-if="item.favoriteable.is_free_freight">包邮</view>
 					</view>
 				</view>
 
@@ -41,6 +45,12 @@
 				modalName: null,
 				listTouchStart: null,
 				listTouchMove: null,
+
+				emptyBtns: [{
+					text: '添加地址',
+					class: 'bg-red',
+					to: '/pages/user/address/edit',
+				}]
 			}
 		},
 		onLoad() {
@@ -66,18 +76,23 @@
 					topic_type: this.type
 				}).then(res => {
 					res.data.forEach(it => it.checked = true);
-
 					this.data = page === 1 ? res.data : this.data.concat(res.data);
 					this.more = res.data.length >= res.per_page;
 					this.page = page;
 					this.loaded = true;
+				}, (err) => {
+					if (!this.loaded) {
+						this.loadError = true;
+					}
+
+					return Promise.reject(err);
 				});
 			},
 
 			// 取消收藏
 			unFavorite(index) {
 				const item = this.data[index];
-				uni.$models.favorite.unfavorite(item.topic_id, {
+				return uni.$models.user.unfavorite(item.topic_type, item.topic_id, {
 					loading: this,
 					hint: this
 				}).then(() => {
@@ -125,19 +140,24 @@
 
 <style scoped>
 	.page {
+		background: #F6F6F6;
+	}
+
+	.goods-list .cu-item {
 		background-color: white;
 	}
 
 	.goods-list .cu-item .title {
+		position: relative;
 		font-size: 16px;
 		line-height: 1.2;
 		color: #333333;
-		height: 38.4px;
+		height: 18.4px;
 	}
 
 	.goods-list .cu-item .image-wrapper {
-		width: 64px;
-		height: 64px;
+		width: 86px;
+		height: 86px;
 	}
 
 	.goods-list>.cu-item.move-cur {
@@ -147,6 +167,24 @@
 	.goods-list>.cu-item .move {
 		top: 0;
 		width: 130rpx;
+	}
+
+	.unfavorite-icon {
+		position: absolute;
+		right: 0;
+		top: 0;
+	}
+
+	.tags .cu-tag {
+		padding: 2rpx 4rpx;
+		height: auto;
+		border-radius: 4rpx;
+		margin-right: 5px;
+		margin-bottom: 2px;
+	}
+
+	.tags .cu-tag+.cu-tag {
+		margin-left: 0;
 	}
 
 	.m-price {

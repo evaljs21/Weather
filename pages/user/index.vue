@@ -1,20 +1,35 @@
 <template>
-	<custom-page class="page" :showNavbar="showNavbar" :loaded="true">
-		<!-- #ifndef H5 -->
-		<block slot="navbar-title">我的</block>
-		<!-- #endif -->
-
+	<custom-page class="page" :loaded="true">
 		<mescroll-body ref="mescrollRef" :up="{use:false}" @init="mescrollInit"
 					   @down="downCallback" @up="upCallback">
 
-			<view class="userinfo">
-				<image class="bg" src="/static/bg/user.jpg" mode="aspectFill"></image>
-				<view class="userinfo-inner flex" @tap="linkTo" data-url="/pages/user/info" data-logged
+			<view class="userinfo" :style="{
+				'margin-bottom':userInfo && userInfo.is_vip?'-106rpx':'-76rpx',
+				'padding-top':(CustomBar*0.7)+'px'
+			}">
+				<image class="bg" src="/static/bg/user.png" mode="aspectFill"></image>
+				<view class="userinfo-inner flex" data-logged
 					  v-if="hasUserInfo">
 					<image :src="userInfo.avatar" background-size="cover"
 						   class="cu-avatar xl round userinfo-avatar"></image>
 					<view class="flex-sub padding-lr">
-						<text class="userinfo-nickname"><text>Hi，</text>{{ userInfo.nickname }}</text>
+						<view class="">
+							<text class="userinfo-nickname"><text>Hi，</text>{{ userInfo.nickname }}</text>
+							<view class="user-vip-title" v-if="userInfo.is_vip">
+								<image src="../../static/icon/user-vip-title.png" mode="widthFix"></image>
+								<text>会员</text>
+							</view>
+						</view>
+						<view class="text-white" v-if="userInfo.parent_user_id">
+							我的推荐人：{{userInfo.parent_user_nickname}}
+						</view>
+					</view>
+					<view class="">
+						<!-- #ifdef MP-WEIXIN -->
+						<button type="default" open-type="contact" class="none">
+							<image src="../../static/icon/user_kefu.png" mode="widthFix" style="width: 33rpx;"></image>
+						</button>
+						<!-- #endif -->
 					</view>
 				</view>
 				<view v-else>
@@ -39,6 +54,15 @@
 				</view>
 			</view>
 
+<!--			<view class="user-vip" @tap="linkTo" data-url="/pages/user/vip/apply" data-logged v-if="!userInfo.is_vip">-->
+<!--				<template v-if="userInfo.vip_apply && userInfo.vip_apply.status!==1">-->
+<!--					<image src="../../static/bg/user-vip-status.png" mode="widthFix" style="width:100%"></image>-->
+<!--				</template>-->
+<!--				<template v-else>-->
+<!--					<image src="../../static/bg/user-vip.png" mode="widthFix" style="width:100%"></image>-->
+<!--				</template>-->
+<!--			</view>-->
+
 			<!-- style="background-color: rgba(255,255,255,0.3);" -->
 			<view class="grid col-3 margin padding-tb-sm text-center bg-white radius-lg">
 				<view class="padding-sm" @tap="linkTo" data-url="/pages/user/wallet/index">
@@ -57,7 +81,7 @@
 
 			<OrderStatusNav :info="config.order_status_count" />
 
-			<MenuList />
+			<MenuList :userInfo="userInfo" />
 
 		</mescroll-body>
 
@@ -67,7 +91,7 @@
 <script>
 	import MescrollMixin from "@/components/mescroll-uni/mescroll-mixins";
 	import OrderStatusNav from './components/order-status-nav.vue';
-	import MenuList from './components/menu-list.vue';
+	import MenuList from './components/menu-list2.vue';
 
 	export default {
 		mixins: [MescrollMixin],
@@ -82,6 +106,7 @@
 				hasUserInfo: false,
 
 				isFirst: true,
+				CustomBar: this.CustomBar,
 				// #ifdef H5
 				showNavbar: false,
 				// #endif
@@ -147,26 +172,22 @@
 <style>
 	.page {
 		padding-bottom: 30rpx;
+		background-color: #f1f1f1;
 	}
 
 	.userinfo {
 		background-color: white;
 		box-sizing: border-box;
-		/* padding-top: calc(var(--status-bar-height) + 52rpx); */
-		padding-bottom: 3px;
 		overflow: hidden;
 		position: relative;
-		min-height: 330rpx;
-
-		margin-bottom: -90rpx;
-		z-index: -1;
+		min-height: 375rpx;
+		margin-bottom: -60rpx;
 	}
 
 	.userinfo image.bg {
-		background-color: #ff3c1b;
 		position: absolute;
 		width: 100%;
-		height: 330rpx;
+		height: 375rpx;
 		left: 0;
 		top: 0;
 	}
@@ -225,17 +246,31 @@
 		text-align: center;
 	}
 
-	.order-status {
-		background-color: white;
-		overflow: hidden;
-	}
-
-	.order-status .cu-list [class*=cuIcon] {
-		color: #fa436a;
-		font-size: 28px;
-	}
 
 	.cu-list.card-menu {
 		border-radius: 6rpx;
+	}
+
+	.user-vip-title {
+		position: relative;
+		z-index: 99;
+		display: inline-block;
+		vertical-align: middle;
+		width: 140rpx;
+		padding-left: 45rpx;
+		font-size: 20rpx;
+		line-height: 40rpx;
+	}
+
+	.user-vip-title image {
+		position: absolute;
+		width: 100%;
+		left: 0;
+		z-index: -1;
+	}
+
+	.user-vip {
+		position: relative;
+		margin: 0 15px;
 	}
 </style>

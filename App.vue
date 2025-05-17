@@ -3,7 +3,7 @@
 	export default {
 		globalData: {
 			shareUid: 0,
-			distributorIdK: 0,
+			distributorId: 0,
 		},
 		onLaunch: function(options) {
 			console.log('App Launch', options);

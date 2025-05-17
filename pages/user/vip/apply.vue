@@ -93,7 +93,7 @@
 		position: fixed;
 		left: 15px;
 		right: 15px;
-		bottom: 30px;
+		bottom: 15%;
 		border-radius: 20rpx;
 		background-color: white;
 		overflow: hidden;

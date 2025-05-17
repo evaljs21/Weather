@@ -1,16 +1,24 @@
 <template>
 	<view class="search-wrapper" :style="wrapperStyle">
-		<view class="cu-bar search" :class="searchClass" :style="innerStyle">
-			<view class="action" @tap="BackPage" v-if="isBackButton">
+		<view class="cu-bar search" :class="showSearchClass" :style="innerStyle">
+			<view class="action" @tap="BackPage" v-if="showBackBtn && isBackButton">
 				<text class="cuIcon-back"></text>
 			</view>
 			<view class="search-form round" @tap="onSearchTap">
 				<text class="cuIcon-search"></text>
-				<input type="text" :adjust-position="adjustPosition" :placeholder="placeholder"
-					   :maxlength="maxLength" confirm-type="search"
-					   v-model="search" :disabled="disabled"
-					   @search="toSearch" />
-				<text class="cuIcon-close clear" v-show="search" @tap="onClearTap"></text>
+				<input type="text"
+					   :adjust-position="adjustPosition"
+					   :placeholder="placeholder"
+					   :maxlength="maxLength"
+					   confirm-type="search"
+					   v-model="search"
+					   @blur="onBlur"
+					   @search="toSearch"
+					   @confirm="toSearch"
+					   :disabled="disabled" />
+				<text class="cuIcon-close clear" :style="{
+					'display':search?'inline-block':'none'
+				}" @tap="onClearTap"></text>
 			</view>
 			<view class="action" v-if="showRightActions">
 				<button class="cu-btn round" @tap="toSearch" v-if="showSearchBtn">搜索</button>
@@ -23,14 +31,13 @@
 <script>
 	export default {
 		name: "custom-search",
+		options: {
+			addGlobalClass: true,
+		},
 		props: {
 			value: String,
 			adjustPosition: Boolean,
 			disabled: Boolean,
-			height: {
-				type: Number | Boolean,
-				default: true
-			},
 			placeholder: {
 				type: String,
 				default: '搜索...'
@@ -39,13 +46,33 @@
 				type: Number,
 				default: 255
 			},
-			showRightActions: {
+			height: {
+				type: Number | Boolean,
+				default: true
+			},
+			fixed: {
 				type: Boolean,
 				default: true,
+			},
+			menuButtonRect: {
+				type: Boolean,
+				default: false,
+			},
+			showStatusBar: {
+				type: Boolean,
+				default: false
+			},
+			showRightActions: {
+				type: Boolean,
+				default: false,
 			},
 			showSearchBtn: {
 				type: Boolean,
 				default: true
+			},
+			showBackBtn: {
+				type: Boolean,
+				default: false
 			},
 			searchClass: {
 				type: String | Object,
@@ -54,21 +81,44 @@
 		},
 		computed: {
 			wrapperStyle() {
-				return {
-					height: typeof this.height === 'boolean' ?
-						(this.height ? this.CustomBar + 'px' : 0) : this.height + 'px'
-				};
+				const height = typeof this.height === 'boolean' ?
+					(this.height ? this.CustomBar + 'px' : 0) : this.height + 'px';
+				let style = `height:${height};`;
+				return style;
+			},
+
+			showSearchClass() {
+				const classMap = {};
+				if (typeof this.searchClass === 'string') {
+					this.searchClass.split(' ').forEach(function(key) {
+						if (key) {
+							classMap[key] = true;
+						}
+					});
+				} else {
+					Object.assign(classMap, this.searchClass);
+				}
+
+				return Object.assign({
+					'fixed': this.fixed
+				}, classMap);
 			},
 
 			innerStyle() {
-				const StatusBar = this.StatusBar;
-				const CustomBar = this.CustomBar;
+				const height = typeof this.height === 'boolean' ? (this.CustomBar + 'px') : this.height + 'px';
 
-				let style = `height:${CustomBar}px;padding-top:${StatusBar}px;`;
+				let style = `height:${height};`;
+
+				if (this.showStatusBar) {
+					const StatusBar = this.StatusBar;
+					style += `padding-top:${StatusBar}px;`;
+				}
 
 				// #ifdef MP
-				const MenuButtonRect = this.MenuButtonRect;
-				style += `padding-right:${MenuButtonRect.width}px;`;
+				if (this.menuButtonRect) {
+					const MenuButtonRect = this.MenuButtonRect;
+					style += `padding-right:${MenuButtonRect.width}px;`;
+				}
 				// #endif
 
 				return style;
@@ -82,6 +132,7 @@
 			};
 		},
 		created() {
+			this.search = this.value || '';
 			this.isBackButton = !uni.$isShowHomeButton();
 		},
 		methods: {
@@ -102,6 +153,13 @@
 				this.$emit('searchtap', e);
 			},
 
+			// 失去焦点
+			onBlur(e) {
+				setTimeout(() => {
+					this.search = this.value;
+				}, 0);
+			},
+
 			// 返回上一页
 			BackPage() {
 				uni.navigateBack({
@@ -111,6 +169,7 @@
 			// 清理
 			onClearTap() {
 				this.search = '';
+				this.emitInput();
 			},
 			// 触发事件
 			emitInput() {
@@ -137,20 +196,20 @@
 
 	.search {
 		transition: all 0.2s;
-		max-width: 1120upx;
+		max-width: 1120rpx;
 		min-height: auto;
+		z-index: 1024;
 	}
 
 	.cu-btn {
 		font-size: 12px;
 	}
 
-	.cu-bar {
+	.search.fixed {
 		position: fixed;
 		width: 100%;
 		left: 0;
 		top: 0;
-		z-index: 1024;
 	}
 
 	.clear {
@@ -163,8 +222,8 @@
 		line-height: 20px;
 	}
 
-	@media screen and (min-width: 1120upx) {
-		.search {
+	@media screen and (min-width: 1120rpx) {
+		.search.fixed {
 			left: 50%;
 			transform: translateX(-50%);
 		}

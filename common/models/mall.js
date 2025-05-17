@@ -5,10 +5,10 @@ export default {
 	},
 
 	// 获取商品详情
-	getGoodsDetail(id, options = {}) {
-		return uni.$http.get('/app/mall/goods/detail', {
+	getGoodsDetail(id, data = {}, options = {}) {
+		return uni.$http.get('/app/mall/goods/detail', Object.assign(data, {
 			id: id
-		}, options);
+		}), options);
 	},
 
 	// 获取商品SKU数据
@@ -20,7 +20,7 @@ export default {
 
 	// 获取海报信息
 	getGoodsPoster(data, options) {
-		return uni.$http.get('/app/mall/goods/poster', data, options);
+		return uni.$http.get('/app/mall/goods_poster', data, options);
 	},
 
 	// 获取商品评价列表

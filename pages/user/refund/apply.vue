@@ -57,7 +57,7 @@
 		</view>
 
 		<view class="padding">
-			<button class="cu-btn block bg-gradual-red lg" @click="confirm" :disabled="!info">提交申请</button>
+			<button class="cu-btn block round bg-red lg" @click="confirm" :disabled="!info">提交申请</button>
 		</view>
 	</custom-page>
 </template>
@@ -66,13 +66,14 @@
 	export default {
 		data() {
 			return {
-				orderGoodsId: 0,
+				orderId: 0,
 				info: null,
 				applyDescIndex: -1,
+				loaded: false,
 
 				typeList: [
-					{ value: 10, text: '仅退款' },
-					{ value: 20, text: '退货退款' },
+					{ value: 0, text: '仅退款' },
+					{ value: 1, text: '退货退款' },
 				],
 				typeIndex: 0,
 
@@ -90,12 +91,12 @@
 			};
 		},
 		onLoad(options) {
-			if (!options.order_goods_id) {
+			if (!options.order_id) {
 				uni.$back()
 				return uni.$hintError('参数错误！');
 			}
 
-			this.orderGoodsId = options.order_goods_id;
+			this.orderId = options.order_id;
 
 			this.loadData();
 		},
@@ -103,10 +104,17 @@
 			// 加载预退款申请信息
 			loadData() {
 				return uni.$models.order.getRefundApplyInfo({
-					order_goods_id: this.orderGoodsId
+					order_id: this.orderId
 				}).then((res) => {
 					this.info = res;
-					this.form.amount = res.order_goods.goods_price;
+					this.form.amount = res.refund_amount;
+					this.loaded = true;
+				}, (err) => {
+					if (!this.loaded) {
+						uni.$back();
+					}
+
+					return Promise.reject(err);
 				});
 			},
 			// 提交申请
@@ -119,8 +127,8 @@
 					return uni.$hintError("请选择退款原因！");
 				}
 
-				const data = Object.assign({}, this.form);
-				data.order_goods_id = this.orderGoodsId;
+				const data = Object.assign({}, this.info, this.form);
+				data.order_id = this.orderId;
 				data.type = this.typeList[this.typeIndex].value;
 				data.receipt_status = this.receiptStatusList[this.receiptStatusIndex].value;
 				data.apply_desc = this.info.apply_desc_list[this.applyDescIndex].value;

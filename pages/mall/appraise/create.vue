@@ -46,7 +46,7 @@
 			</view>
 
 			<view class="padding">
-				<button class="cu-btn block bg-gradual-red lg" @tap="onSubmit">提交</button>
+				<button class="cu-btn round block bg-red lg" @tap="onSubmit">提交</button>
 			</view>
 
 		</template>

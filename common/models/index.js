@@ -1,4 +1,5 @@
 export { default as basic } from './basic';
+export { default as wechat } from './wechat';
 export { default as user } from './user';
 export { default as coupon } from './coupon';
 export { default as address } from './address';

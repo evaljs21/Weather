@@ -1,7 +1,7 @@
 <template>
 	<custom-page class="page" :loaded="loaded" @refresh="loadData">
-		<template v-if="loaded">
 
+		<view class="order-info" v-if="loaded">
 			<!--收货地址-->
 			<view class="flex align-center bg-white padding"
 				  @tap="linkTo" data-url="/pages/user/address/list?source=1">
@@ -27,8 +27,8 @@
 			<!--商品列表-->
 			<view class="cu-list goods-list" v-if="info.goods_list.length">
 				<view class="cu-item flex padding-sm"
-					  v-for="(item,index) in info.goods_list" :key="item.id"
-					  @tap="linkTo" :data-url="'../goods/detail?id='+item.goods_id">
+					  v-for="(item,index) in info.goods_list" :key="item.id">
+					<!-- @tap="linkTo" :data-url="'../goods/detail?id='+item.goods_id" -->
 					<view class="image-wrapper radius lg">
 						<image :src="item.goods_cover" mode="aspectFill" lazy-load="true"></image>
 					</view>
@@ -39,7 +39,10 @@
 						</view>
 						<view class="flex margin-top-xs" @tap.stop.prevent="stopPrevent">
 							<view class="flex-sub text-lg text-bold">
-								<text class="text-price text-red">{{ item.goods_price }}</text>
+								<text class="text-price text-red">{{ item.goods_show_price || item.goods_price }}</text>
+								<text class="text-xs text-green" v-if="item.is_sample">（样品价）</text>
+								<text class="text-xs text-mauve" v-else-if="item.discount">（折扣价）</text>
+								<text class="text-xs text-pink" v-else-if="item.is_vip">（会员价）</text>
 							</view>
 							<view style="display: inline-block;">
 								<uni-number-box :min="1" :max="item.stock>100?100:item.stock"
@@ -63,12 +66,18 @@
 					<view class="content">运费</view>
 					<view class="action text-black text-price text-bold">0.00</view>
 				</view>
-				<view class="cu-item arrow">
+				<view class="cu-item">
 					<view class="content">优惠券</view>
-					<view class="action" @tap="choiceCoupon">
-						<text class="text-red"
-							  v-if="info.user_coupon_list.length">{{info.user_coupon_list.length}}张可用</text>
-						<text class="text-gray" v-else>无可用</text>
+					<view class="action" @tap="choiceCouponTap">
+						<template v-if="choiceCoupon">
+							<text class="text-red text-bold">-</text>
+							<text class="text-red text-price text-bold">{{choiceCoupon.money}}</text>
+						</template>
+						<template v-else>
+							<text class="text-red"
+								  v-if="info.user_coupon_list.length">{{info.user_coupon_list.length}}张可用</text>
+							<text class="text-gray" v-else>无可用</text>
+						</template>
 					</view>
 				</view>
 				<view class="cu-item solid-top">
@@ -96,6 +105,7 @@
 					<radio class='radio' :checked="payType=='20'"></radio>
 				</view>
 				<!-- #endif -->
+				<!-- #ifdef H5 -->
 				<view class="cu-form-group" @tap.stop="payType='10'">
 					<view class="title">
 						<text class="text-xxl margin-right-xs" style="vertical-align: sub;">
@@ -106,25 +116,34 @@
 					</view>
 					<radio class='radio' :checked="payType=='10'"></radio>
 				</view>
+				<!-- #endif -->
 			</radio-group>
+		</view>
 
-			<!--底部栏-->
-			<view class="cu-bar foot padding-lr bg-white">
-				<view class="flex-sub">
-					<text class="text-xxl text-price text-bold text-red">{{orderAmount}}</text>
-				</view>
-				<view class="">
-					<button class="cu-btn bg-red round" @tap="goOrder"
-							:disabled="isGoOrder || isSubmitDisabled">提交订单</button>
-				</view>
+		<!--选择优惠券-->
+		<ChoiceCouponPopup ref="choiceCoupon" :list="info.user_coupon_list" v-if="loaded" />
+
+		<!--底部栏-->
+		<view class="cu-bar foot padding-lr bg-white">
+			<view class="flex-sub">
+				<text class="text-bold text-xl">合计：</text>
+				<text class="text-xxl text-price text-bold text-red">{{orderAmount}}</text>
 			</view>
+			<view class="">
+				<button class="cu-btn lg bg-red round" @tap="goOrder"
+						:disabled="isGoOrder || isSubmitDisabled">提交订单</button>
+			</view>
+		</view>
 
-		</template>
 	</custom-page>
 </template>
 
 <script>
+	import ChoiceCouponPopup from './choice-coupon-popup.vue';
 	export default {
+		components: {
+			ChoiceCouponPopup,
+		},
 		data() {
 			return {
 				// 根据商品信息购买
@@ -138,8 +157,11 @@
 				info: null,
 				loaded: false,
 
+				// 选择的优惠券信息
+				choiceCoupon: null,
+
 				// 支付方式
-				payType: '10',
+				payType: '20',
 
 				// 是否下单中
 				isGoOrder: false,
@@ -162,7 +184,11 @@
 			},
 			// 订单支付金额
 			orderAmount() {
-				return this.goodsTotalAmount;
+				let amount = uni.$BigNumber(this.goodsTotalAmount);
+				if (this.choiceCoupon) {
+					amount = amount.minus(this.choiceCoupon.money);
+				}
+				return amount.toFixed(2);
 			},
 
 			// 是否禁用提交订单按钮
@@ -220,9 +246,13 @@
 						goods_id: this.goodsId,
 						goods_sku_id: this.goodsSkuId,
 						goods_num: this.goodsNum,
+						sample: this.sample
 					}).then((res) => {
 						this.info = res;
 						this.loaded = true;
+					}, (err) => {
+						uni.$back(1500);
+						return Promise.reject(err);
 					});
 				} else {
 					return uni.$models.mall.getAdvanceOrderFormCart({
@@ -230,6 +260,9 @@
 					}).then((res) => {
 						this.info = res;
 						this.loaded = true;
+					}, (err) => {
+						uni.$back(1500);
+						return Promise.reject(err);
 					});
 				}
 			},
@@ -254,13 +287,15 @@
 			},
 
 			// 使用优惠券
-			choiceCoupon() {
-				uni.$emitter.once('coupon.choice', (res) => {
-					console.log(res);
-				});
+			choiceCouponTap() {
+				return this.$refs.choiceCoupon.choice().then((res) => {
+					if (!res.confirm) {
+						return;
+					}
 
-				uni.navigateTo({
-					url: '/pages/user/coupon?source=1'
+					this.choiceCoupon = res.userCoupon;
+
+					return res;
 				});
 			},
 
@@ -275,7 +310,18 @@
 				}
 
 				const order = {
-					platform: 'wx_mini',
+					// #ifdef H5
+					platform: 'h5',
+					// #endif
+					// #ifdef MP-WEIXIN
+					platform: 'weapp',
+					// #endif
+					// #ifdef MP-ALIPAY
+					platform: 'aliapp',
+					// #endif
+					// #ifdef MP-TOUTIAO
+					platform: 'toutiao',
+					// #endif
 					receiver_name: this.info.user_address.name,
 					receiver_phone: this.info.user_address.phone,
 					receiver_gender: this.info.user_address.gender,
@@ -283,6 +329,9 @@
 					receiver_city: this.info.user_address.city,
 					receiver_district: this.info.user_address.district,
 					receiver_address: this.info.user_address.address,
+
+					// 优惠券
+					user_coupon_id: this.choiceCoupon ? this.choiceCoupon.id : 0,
 				};
 
 				this.isGoOrder = true;
@@ -314,12 +363,12 @@
 
 			// 去支付
 			goPay(order) {
-				const jump = function() {
+				const jump = function(timeout = 1500) {
 					setTimeout(() => {
 						uni.redirectTo({
 							url: './success?status=1'
 						});
-					}, 1500);
+					}, timeout);
 				};
 				uni.$models.order.getOrderPaymentInfo({
 					id: order.id,
@@ -335,13 +384,16 @@
 						uni.requestPayment({
 							...res,
 							success: () => {
+								jump();
 								this.hintSuccess('已支付！');
 							},
-							complete: () => {
-								jump();
+							fail: () => {
+								jump(0);
 							}
 						});
 					}
+				}, () => {
+					jump();
 				});
 			}
 		}
@@ -349,7 +401,7 @@
 </script>
 
 <style scoped>
-	.page {
+	.order-info {
 		padding-bottom: 130rpx;
 	}
 

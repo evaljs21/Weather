@@ -13,18 +13,12 @@
 		<!-- 状态栏 -->
 		<view v-if="topbar&&statusBarHeight" class="mescroll-topbar" :style="{height: statusBarHeight+'px', background: topbar}"></view>
 
-		<view class="mescroll-body-content mescroll-wxs-content" :style="{ transform: translateY, transition: transition }"
-			:change:prop="wxsBiz.callObserver" :prop="callProp">
+		<view class="mescroll-body-content mescroll-wxs-content" :style="{ transform: translateY, transition: transition }" :change:prop="wxsBiz.callObserver" :prop="callProp">
 			<!-- 下拉加载区域 (支付宝小程序子组件传参给子子组件仍报单项数据流的异常,暂时不通过mescroll-down组件实现)-->
 			<!-- <mescroll-down :option="mescroll.optDown" :type="downLoadType" :rate="downRate"></mescroll-down> -->
 			<view v-if="mescroll.optDown.use" class="mescroll-downwarp" :style="{'background':mescroll.optDown.bgColor,'color':mescroll.optDown.textColor}">
 				<view class="downwarp-content">
-					<image src="/static/logo.png" mode="aspectFit"
-						class="downwarp-progress mescroll-wxs-progress"
-						:class="{'mescroll-rotate': isDownLoading}"
-						:style="{'border-color':mescroll.optDown.textColor, 'transform': downRotate}"
-						style="width: 20px;height: 20px;"></image>
-					<!-- <view class="downwarp-progress mescroll-wxs-progress" :class="{'mescroll-rotate': isDownLoading}" :style="{'border-color':mescroll.optDown.textColor, 'transform': downRotate}"></view> -->
+					<view class="downwarp-progress mescroll-wxs-progress" :class="{'mescroll-rotate': isDownLoading}" :style="{'border-color':mescroll.optDown.textColor, 'transform': downRotate}"></view>
 					<view class="downwarp-tip">{{ downText }}</view>
 				</view>
 			</view>
@@ -177,8 +171,7 @@ export default {
 				case 3:
 					return this.mescroll.optDown.textLoading;
 				case 4:
-					return this.mescroll.isDownEndSuccess ? this.mescroll.optDown.textSuccess : this.mescroll.isDownEndSuccess ==
-					false ? this.mescroll.optDown.textErr : this.mescroll.optDown.textInOffset;
+					return this.mescroll.isDownEndSuccess ? this.mescroll.optDown.textSuccess : this.mescroll.isDownEndSuccess == false ? this.mescroll.optDown.textErr : this.mescroll.optDown.textInOffset;
 				default:
 					return this.mescroll.optDown.textInOffset;
 			}

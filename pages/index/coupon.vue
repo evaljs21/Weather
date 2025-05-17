@@ -1,10 +1,13 @@
 <template>
 	<custom-page class="page" :loaded="loaded">
 		<image src="" mode="widthFix" class="img-full"></image>
-		<view class="coupon-list">
-			<custom-coupon v-for="(coupon,index) in data" :coupon="coupon" class="margin" @actiontap="onGiveTap(index)">
-			</custom-coupon>
+		<view class="coupon-list" v-if="data.length">
+			<view v-for="(coupon,index) in data" :key="coupon.id" class="margin coupon">
+				<custom-coupon :coupon="coupon" @actiontap="onGiveTap(index)">
+				</custom-coupon>
+			</view>
 		</view>
+		<custom-empty type="coupon" v-else></custom-empty>
 	</custom-page>
 </template>
 

@@ -165,14 +165,14 @@ MeScroll.prototype.initDownScroll = function() {
 	me.optDown = me.options.down || {};
 	if(!me.optDown.textColor && me.hasColor(me.optDown.bgColor)) me.optDown.textColor = "#fff"; // 当bgColor有值且textColor未设置,则textColor默认白色
 	me.extendDownScroll(me.optDown);
-	
+
 	// 如果是mescroll-body且配置了native,则禁止自定义的下拉刷新
 	if(me.isScrollBody && me.optDown.native){
 		me.optDown.use = false
 	}else{
 		me.optDown.native = false // 仅mescroll-body支持,mescroll-uni不支持
 	}
-	
+
 	me.downHight = 0; // 下拉区域的高度
 
 	// 在页面中加入下拉布局
@@ -229,7 +229,7 @@ MeScroll.prototype.touchmoveEvent = function(e) {
 				me.touchendEvent(); // 提前触发touchend
 				return;
 			}
-			
+
 			me.preventDefault(e); // 阻止默认事件
 
 			let diff = curPoint.y - me.lastPoint.y; // 和上次比,移动的距离 (大于0向下,小于0向上)
@@ -257,7 +257,7 @@ MeScroll.prototype.touchmoveEvent = function(e) {
 					me.downHight += diff; // 向上收回高度,则向上滑多少收多少高度
 				}
 			}
-			
+
 			me.downHight = Math.round(me.downHight) // 取整
 			let rate = me.downHight / me.optDown.offset; // 下拉区域当前高度与指定距离的比值
 			me.optDown.onMoving && me.optDown.onMoving(me, rate, me.downHight); // 下拉过程中的回调,一直在执行
@@ -449,7 +449,7 @@ MeScroll.prototype.onReachBottom = function() {
 /*列表滚动事件 (仅mescroll-body生效)*/
 MeScroll.prototype.onPageScroll = function(e) {
 	if (!this.isScrollBody) return;
-	
+
 	// 更新滚动条的位置 (主要用于判断下拉刷新时,滚动条是否在顶部)
 	this.setScrollTop(e.scrollTop);
 

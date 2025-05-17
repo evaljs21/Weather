@@ -8,11 +8,27 @@
 					   :src="chooseSku && chooseSku.cover?chooseSku.cover:info.cover"
 					   @tap="previewSkuImage(chooseSku && chooseSku.cover?chooseSku.cover:info.cover)"></image>
 				<view class="flex-sub">
-					<view class="text-price text-red text-lg">{{chooseSku?chooseSku.price:info.price}}</view>
-					<view>库存：
-						<text>{{chooseSku?chooseSku.stock:0}}</text>
+					<view class="text-price text-red text-lg">
+						<template v-if="type==='sample'">
+							<text>{{chooseSku?chooseSku.sample_price:info.sample_price}}</text>
+							<text class="text-xs text-green">（样品价）</text>
+						</template>
+						<template v-else-if="info.discount">
+							<text>{{chooseSku?chooseSku.discount_price:info.discount_price}}</text>
+							<text class="text-xs text-mauve">（折扣价）</text>
+						</template>
+						<template v-else-if="isVip">
+							<text>{{chooseSku?chooseSku.vip_price:info.vip_price}}</text>
+							<text class="text-xs text-pink">（会员价）</text>
+						</template>
+						<text v-else>{{chooseSku?chooseSku.price:info.price}}</text>
 					</view>
-					<view>已选：
+					<view>库存：
+						<text class="text-red" v-if="maxStock<1">库存不足</text>
+						<text v-else-if="type==='sample'">{{chooseSku?chooseSku.sample_stock:0}}</text>
+						<text v-else>{{chooseSku?chooseSku.stock:0}}</text>
+					</view>
+					<view v-if="chooseSpec && chooseSpec.length">已选：
 						<text v-for="(choose,index) in chooseSpec" :key="index">{{choose.title}};</text>
 					</view>
 				</view>
@@ -33,17 +49,18 @@
 			<view class="padding-tb-sm padding-lr">
 				<view class="text-lg text-grey">选择数量</view>
 				<view class="flex-wrap margin-top-sm">
-					<uni-number-box :min="1" :max="100" :value="buyNumber"
+					<uni-number-box :min="1" :max="maxStock" :value="buyNumber"
 									@change="buyNumber = $event">
 					</uni-number-box>
 				</view>
 			</view>
 
 			<view class="padding flex flex-direction">
-				<button class="cu-btn bg-red lg" @tap="confirm" v-if="type=='cart'">加入购物车</button>
-				<button class="cu-btn bg-red lg" @tap="confirm" v-else-if="type=='buy'"
+				<button class="cu-btn bg-red round lg" @tap="confirm" v-if="type=='cart'"
+						:disabled="allowClick">加入购物车</button>
+				<button class="cu-btn bg-red round lg" @tap="confirm" v-else-if="type=='buy'"
 						:disabled="allowClick">立即购买</button>
-				<button class="cu-btn bg-red lg" @tap="confirm" v-else>完成</button>
+				<button class="cu-btn bg-red round lg" @tap="confirm" v-else>完成</button>
 			</view>
 		</view>
 	</view>
@@ -79,7 +96,18 @@
 			},
 			allowClick() {
 				const chooseSku = this.chooseSku;
-				return !(chooseSku && chooseSku.stock > 0);
+				return !(chooseSku && this.maxStock > 0);
+			},
+			isVip() {
+				const user = uni.$user.value();
+				return user && user.is_vip;
+			},
+			maxStock() {
+				if (!this.chooseSku) {
+					return 0;
+				}
+
+				return this.type === 'sample' ? this.chooseSku.sample_stock : this.chooseSku.stock;
 			}
 		},
 		created() {
@@ -113,6 +141,12 @@
 			// 设置选中规格
 			setChoiceSpecValue(specIndex, value) {
 				this.$set(this.chooseSpec, specIndex, value);
+
+				this.$nextTick(() => {
+					if (this.maxStock < 1) {
+						uni.$hintError("库存不足！");
+					}
+				});
 			},
 
 			// 取消弹框
@@ -154,7 +188,7 @@
 
 			// 关闭弹窗
 			close() {
-				this.type = '';
+				// this.type = '';
 				this.isShow = false;
 			},
 

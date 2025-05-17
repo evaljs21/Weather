@@ -35,7 +35,8 @@
 
 				<view class="cu-list goods-list">
 					<view class="cu-item flex padding-sm" v-for="(goodsItem,goodsIndex) in info.goods_list"
-						  :key="goodsItem.id">
+						  :key="goodsItem.id"
+						  @tap="linkTo" :data-url="'/pages/mall/goods/detail?id='+item.goods_id">
 						<view class="image-wrapper radius lg" :class="{loaded: goodsItem.loaded}">
 							<image :src="goodsItem.goods_cover" mode="aspectFill" lazy-load="true"
 								   @load="imageOnLoad(goodsItem)"></image>
@@ -44,10 +45,6 @@
 							<view class="title ellipsis-2 text-black">{{ goodsItem.goods_title }}</view>
 							<view class="text-gray text-sm margin-top-xs">
 								<text>{{ goodsItem.goods_spec || '' }}</text>
-							</view>
-							<view class="" v-if="info.pay_status==20">
-								<button class="cu-btn text-sm sm" @tap.stop.prevent="linkTo"
-										:data-url="'../refund/apply?order_goods_id='+goodsItem.id">退款</button>
 							</view>
 						</view>
 						<view class="action">
@@ -62,6 +59,13 @@
 					<view class="flex text-sm">
 						<view class="flex-sub">商品总价</view>
 						<view class="flex-sub text-right text-price">{{info.total_amount}}</view>
+					</view>
+					<view class="flex text-sm margin-top-sm" v-if="info.user_coupon_id">
+						<view class="flex-sub">优惠券</view>
+						<view class="flex-sub text-right text-red">
+							<text>-</text>
+							<text class="text-price">{{info.coupon_amount}}</text>
+						</view>
 					</view>
 					<view class="flex text-sm margin-top-sm">
 						<view class="flex-sub">运费</view>
@@ -143,6 +147,10 @@
 				<button class="cu-btn round text-sm margin-left-sm"
 						@tap.stop.prevent="linkTo" :data-url="'./express?id='+info.id"
 						v-if="info.delivery_type==10 && info.delivery_status==20">查看物流</button>
+				<button class="cu-btn round text-sm margin-left-sm"
+						@tap.stop.prevent="linkTo"
+						:data-url="'../refund/apply?order_id='+info.id"
+						v-if="info.order_status===20 || info.order_status===30">申请售后</button>
 				<button class="cu-btn bg-red round text-sm margin-left-sm"
 						@tap.stop.prevent="confirmOrder"
 						v-if="info.order_status===20 || info.order_status===30">确认收货</button>

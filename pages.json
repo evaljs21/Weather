@@ -43,14 +43,12 @@
 		{
 			"path": "pages/mall/category/index",
 			"style": {
-				"navigationStyle": "custom",
 				"navigationBarTitleText": "分类"
 			}
 		},
 		{
 			"path": "pages/mall/goods/list",
 			"style": {
-				"navigationStyle": "custom",
 				"navigationBarTitleText": "商品列表"
 			}
 		},
@@ -78,7 +76,6 @@
 		{
 			"path": "pages/mall/cart/index",
 			"style": {
-				"navigationStyle": "custom",
 				"navigationBarTitleText": "购物车"
 			}
 		},
@@ -611,7 +608,8 @@
 			"path": "pages/mall/goods/poster",
 			"style": {
 				"navigationBarTitleText": "商品海报",
-				"enablePullDownRefresh": false
+				"enablePullDownRefresh": false,
+				"navigationStyle":"custom"
 			}
 
 		}

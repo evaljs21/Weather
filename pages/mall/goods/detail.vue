@@ -3,7 +3,7 @@
 		<template v-if="loaded">
 			<!-- 商品轮播图 -->
 			<view class="" style="overflow: hidden;">
-				<swiper class="screen-swiper round-dot" style="min-height: 356rpx;"
+				<swiper class="screen-swiper round-dot" style="min-height: 750rpx;"
 						:indicator-dots="true" :circular="true"
 						:autoplay="false" interval="5000" duration="500"
 						@tap="previewImage" :data-urls="swiperList">
@@ -129,23 +129,24 @@
 			</view>
 			<!-- /商品详情 -->
 
-			<custom-titlebar :transparent="true" title="最近浏览" class="margin-top"></custom-titlebar>
+			<custom-titlebar :transparent="true" title="猜你喜欢" class="margin-top"></custom-titlebar>
 			<GoodsList :list="goodsList" :row="true" :radius="true"></GoodsList>
 
 			<!-- 食品顾问 -->
-			<view class="margin flex">
-				<image src="../../../static/bg/wallet.png" mode="widthFix" style="width: 100%;"></image>
-			</view>
+<!-- 			<view class="margin distributor" v-if="info.distributor" @tap="showPreviewAdviser">
+				<image src="../../../static/bg/adviser.png" mode="widthFix" style="width: 100%;"></image>
+				<image :src="info.distributor.qrcode" mode="aspectFill" class="distributor-qrcode"></image>
+			</view> -->
 			<!-- /食品顾问 -->
 
-			<!-- 食品顾问 -->
+			<!-- 分享按钮 -->
 			<view class="fixed-share-btn" @tap="showShareTap">
-				<image src="../../../static/icon/wechat.png" mode="aspectFill"></image>
+				<image src="../../../static/icon/detail-share.png" mode="aspectFill"></image>
 			</view>
-			<!-- /分销按钮 -->
+			<!-- /分享按钮 -->
 
 			<!-- 商品详情 -->
-			<custom-share-popup ref="sharePopup"></custom-share-popup>
+			<custom-share-popup ref="sharePopup" @poster="toPoster" :showPoster="!!info.poster"></custom-share-popup>
 			<!-- /商品详情 -->
 
 			<!-- 商品规格 -->
@@ -166,7 +167,7 @@
 					</view>
 					购物车
 				</view>
-				<view class="cu-btn bg-green round" @tap="toBuy(1)">试样品</view>
+				<view class="cu-btn bg-green round" @tap="toBuy(1)">购买</view>
 				<view class="btn-group flex flex-sub">
 					<view class="cu-btn bg-orange round flex-sub btn-shoppcart" @tap="toShoppingCart">加入购物车</view>
 					<view class="cu-btn bg-red round flex-sub btn-buy"
@@ -217,7 +218,11 @@
 			},
 			servicesText() {
 				return this.info ? this.info.services.map(it => it.title).join(' · ') : '';
-			}
+			},
+			isVip() {
+				const user = uni.$user.value();
+				return user && user.is_vip;
+			},
 		},
 		onLoad(options) {
 			this.id = parseInt(options.id);
@@ -227,24 +232,29 @@
 			}
 
 			this.loadData();
-			this.loadGoodsData();
 		},
 
 		onPullDownRefresh() {
 			this.loadData().finally(() => {
 				uni.stopPullDownRefresh();
 			});
-
-			this.loadGoodsData();
 		},
-
+		onShareAppMessage() {
+			return {
+				path: uni.$shareUrl(this.__route__ + "?id=" + this.id)
+			};
+		},
 		methods: {
 			// 加载数据
 			loadData() {
-				return uni.$models.mall.getGoodsDetail(this.id).then(res => {
+				return uni.$models.mall.getGoodsDetail(this.id, {
+					distributor_id: getApp().globalData.distributorId
+				}).then(res => {
 					this.info = res;
 					this.loaded = true;
-				}, () => {
+
+					this.loadGoodsData();
+				}, (err) => {
 					if (!this.loaded) {
 						this.loadError = true;
 					}
@@ -254,6 +264,8 @@
 			// 加载商品数据
 			loadGoodsData() {
 				return uni.$models.mall.getGoodsList({
+					category_id: this.info.category_id,
+					type: 'view',
 					limit: 10,
 				}).then(res => {
 					this.goodsList = res.data;
@@ -329,13 +341,60 @@
 					});
 				});
 			},
+
+			// 跳转到poster
+			toPoster() {
+				uni.navigateTo({
+					url: './poster?goods_id=' + this.id
+				})
+			},
+
+			// 下载素材
+			downloadImage() {
+				uni.showLoading();
+				let promise = Promise.resolve();
+				for (const src of this.info.moments_imgs) {
+					promise = promise.then(function() {
+						return uni.$promise.getImageInfo({
+							src: src
+						});
+					}).then(function(res) {
+						return uni.$promise.saveImageToPhotosAlbum({
+							filePath: res.path
+						});
+					}).catch((err) => {
+						if (uni.$isAuthDeny(err)) {
+							uni.showModal({
+								title: '温馨提示',
+								content: '请勾选相册权限后，进行重试！',
+								showCancel: false,
+								success: res => {
+									uni.openSetting({})
+								},
+							});
+						} else {
+							uni.$hintError('保存失败：' + err.errMsg);
+						}
+					});
+				}
+				promise.then(() => uni.hideLoading());
+			},
+
+			// 弹出授权二维码
+			showPreviewAdviser() {
+				uni.previewImage({
+					current: 0,
+					urls: [this.info.distributor.qrcode]
+				})
+			}
 		}
 	}
 </script>
 
 <style scoped>
 	.page {
-		padding-bottom: 130rpx;
+		display: block;
+		padding-bottom: calc(65px + env(safe-area-inset-bottom) / 2);
 	}
 
 	.screen-swiper video {
@@ -361,13 +420,18 @@
 		display: inline-block;
 	}
 
+	.cu-bar.foot {
+		box-shadow: none;
+	}
+
 	.cu-bar.tabbar.shop .action {
-		width: 96rpx;
+		/* width: 96rpx; */
 		font-size: 20rpx;
 	}
 
 	.cu-bar.tabbar.shop .action [class*="cuIcon-"] {
 		width: 54rpx;
+		white-space: nowrap;
 	}
 
 	.cu-bar.tabbar.shop .btn-group {
@@ -384,6 +448,13 @@
 		border-bottom-left-radius: 0;
 	}
 
+	.btn-shoppcart,
+	.btn-buy,
+	.btn-sample {
+		font-size: 14px;
+		white-space: nowrap;
+	}
+
 	.fixed-share-btn {
 		position: fixed;
 		right: 30rpx;
@@ -396,5 +467,30 @@
 		position: absolute;
 		height: 100%;
 		width: 100%;
+	}
+
+	.tags .cu-tag {
+		padding: 2rpx 4rpx;
+		height: auto;
+		border-radius: 4rpx;
+		margin-right: 5px;
+		margin-bottom: 2px;
+	}
+
+	.tags .cu-tag+.cu-tag {
+		margin-left: 0;
+	}
+
+	.distributor {
+		position: relative;
+	}
+
+	.distributor-qrcode {
+		position: absolute;
+		top: 50%;
+		right: 15px;
+		margin-top: -60rpx;
+		width: 120rpx;
+		height: 120rpx;
 	}
 </style>

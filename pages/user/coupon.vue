@@ -1,8 +1,13 @@
 <template>
 	<custom-page class="page" :loaded="loaded">
-		<template v-for="coupon in data">
-			<custom-coupon :coupon="coupon" class="margin" @actiontap="actionTap(coupon)"></custom-coupon>
-		</template>
+		<view class="coupon-list" v-if="data.length">
+			<view v-for="coupon in data" :key="coupon.id" class="margin coupon">
+				<custom-coupon :coupon="coupon"
+							   @actiontap="actionTap(coupon)"></custom-coupon>
+			</view>
+		</view>
+		<custom-empty type="coupon" v-else></custom-empty>
+
 
 		<view class="foot padding bg-white">
 			<view class="text-center" @tap="linkTo"
@@ -59,7 +64,7 @@
 							color: '#FF3456',
 							ltBg: "#FFFFFF",
 							height: '180rpx',
-							title: "全场通用券",
+							title: item.coupon.title,
 							number: item.coupon.number_text,
 							use_tips: item.coupon.use_tips,
 							desc: "有效期至 " + (item.expire_time || item.coupon.end_time),
@@ -91,6 +96,11 @@
 </script>
 
 <style>
+	.coupon-list {
+		position: relative;
+		z-index: 10;
+	}
+
 	.foot {
 		position: fixed;
 		z-index: 99;

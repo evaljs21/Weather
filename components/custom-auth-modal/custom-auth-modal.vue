@@ -22,6 +22,8 @@
 	export default {
 		data() {
 			return {
+				phone: '',
+				sessionKey: '',
 				allowClose: true,
 				isShow: false,
 			};
@@ -32,7 +34,10 @@
 
 			uni.$emitter.on('sys.getUserInfo.to', this.onShowing, true);
 		},
-		detached() {
+		beforeDestroy() {
+			if (this.isShow) {
+				uni.$emitter.emit('sys.getUserInfo.result', null);
+			}
 			uni.$emitter.off('sys.getUserInfo.to', this.onShowing);
 		},
 		methods: {
@@ -41,10 +46,23 @@
 					lang: 'zh_CN',
 					desc: '此操作需要您授权基本信息',
 					success: (res) => {
+						res.userInfo.phone = this.phone;
 						uni.setStorageSync('user_profile', res.userInfo);
 						uni.$emitter.emit('sys.getUserInfo.result', res);
 						this.hide();
 					}
+				});
+			},
+			decryptPhoneNumber(e) {
+				uni.$models.wechat.decryptPhoneNumber({
+					code: e.detail.code,
+					iv: e.detail.iv,
+					encryptedData: e.detail.encryptedData,
+					session_key: this.sessionKey
+				}).then((res) => {
+					this.phone = res.phoneNumber;
+				}, () => {
+					this.loadSessionKey(true);
 				});
 			},
 			onShowing(options) {
@@ -64,7 +82,14 @@
 					uni.$emitter.emit('sys.getUserInfo.result', null);
 					this.hide();
 				}
-			}
+			},
+			loadSessionKey(force = false) {
+				uni.$models.wechat.getSessionKey({
+					force: force
+				}).then((sessionKey) => {
+					this.sessionKey = sessionKey;
+				});
+			},
 		}
 	}
 </script>

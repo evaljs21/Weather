@@ -1,9 +1,11 @@
 <template>
 	<view class="cu-bar" :class="wrapperClass">
 		<view class="action sub-title">
-			<text class="cuIcon-titles text-green"></text>
-			<text>{{title}}</text>
-			<text class="bg-green"></text>
+			<text class="cuIcon-titles text-blue"></text>
+			<text :class="{
+				'text-bold':titleBold
+				  }">{{title}}</text>
+			<text class="text-blue"></text>
 		</view>
 		<view class="action" @tap="moreHandle" v-if="isMore">
 			<text class="text-gray text-sm">{{moreText}}</text>
@@ -17,6 +19,7 @@
 		name: "custom-titlebar",
 		props: {
 			title: String,
+			titleBold: Boolean,
 			transparent: Boolean,
 			isMore: Boolean,
 			moreText: {

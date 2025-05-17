@@ -2,18 +2,22 @@
 	<view class="share-wrapper cu-modal bottom-modal" :class="isShow?'show':''" @tap="cancel">
 		<view class="cu-dialog share-dialog padding" @tap.stop.prevent="stopPrevent">
 			<view class="flex flex-wrap list">
-				<view class="flex-sub flex list-item">
-					<image src="../../static/icon/wechat.png" mode="aspectFill" class="icon"></image>
-					<button class="flex-sub text text-cut share-btn" open-type="share">发送给朋友</button>
+				<view class="basis-df">
+					<view class="flex list-item">
+						<image src="../../static/icon/share_wechat.png" mode="aspectFill" class="icon"></image>
+						<button class="flex-sub text text-cut share-btn" open-type="share">发送给朋友</button>
+					</view>
 				</view>
-				<view class="flex-sub flex list-item" @tap="linkTo" data-url="/pages/mall/goods/poster">
-					<image src="../../static/icon/wechat.png" mode="aspectFill" class="icon"></image>
-					<view class="flex-sub text text-cut">分享海报</view>
+				<view class="basis-df" @tap="emit('poster')" v-if="showPoster">
+					<view class="flex list-item">
+						<image src="../../static/icon/share_poster.png" mode="aspectFill" class="icon"></image>
+						<view class="flex-sub text text-cut">分享海报</view>
+					</view>
 				</view>
 			</view>
 
 			<view class="margin-top">
-				<button class="cu-btn block bg-white lg" @tap="cancel">取消</button>
+				<button class="cu-btn round block bg-white lg" @tap="cancel">取消</button>
 			</view>
 		</view>
 	</view>
@@ -22,6 +26,9 @@
 <script>
 	export default {
 		name: "custom-share-popup",
+		props: {
+			showPoster: { type: Boolean, default: true },
+		},
 		data() {
 			return {
 				isShow: false,
@@ -36,6 +43,10 @@
 			cancel() {
 				this.isShow = false;
 			},
+			// 触发事件
+			emit(type) {
+				this.$emit(type);
+			}
 		}
 	}
 </script>

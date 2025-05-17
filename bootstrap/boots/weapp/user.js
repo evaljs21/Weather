@@ -1,5 +1,4 @@
 import $ from "../../$";
-import { emitter } from "../../events";
 
 // 缓存数据KEY
 const CACHE_KEY = '__SYS_USER_PROFILE__';
@@ -31,7 +30,7 @@ $.$define('getUserInfo', function(options = {}) {
 
 			return res.userInfo;
 		}, function(err) {
-			console.error('getUserInfo:', err);
+			console.warn('getUserInfo:', err);
 			return customGetUserInfo(options);
 		});
 	} else {
@@ -52,7 +51,7 @@ $.$define('getUserInfo', function(options = {}) {
  */
 function customGetUserInfo(options) {
 	return new Promise(function(resolve, reject) {
-		emitter.once('sys.getUserInfo.result', (res) => {
+		$.$emitter.once('sys.getUserInfo.result', (res) => {
 			if (res && res.userInfo) {
 				resolve(res.userInfo);
 			} else {
@@ -62,6 +61,7 @@ function customGetUserInfo(options) {
 				});
 			}
 		});
-		emitter.emit('sys.getUserInfo.to', options);
+
+		$.$emitter.emit('sys.getUserInfo.to', options);
 	});
 }

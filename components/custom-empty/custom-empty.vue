@@ -5,7 +5,7 @@
 			{{tips}}
 		</view>
 		<view class="padding text-center flex" v-if="btns.length">
-			<button class="cu-btn round margin-right flex-sub" v-for="(item,index) in btns" :key="index"
+			<button class="cu-btn lg round margin-right flex-sub" v-for="(item,index) in btns" :key="index"
 					:class="item.class?item.class:'line-grey'" @tap="onBtnClick(item)">{{item.text}}</button>
 		</view>
 	</view>

@@ -81,6 +81,7 @@ export default {
 	previewImage: function(e) {
 		let current = e.target.dataset.current;
 		let urls = e.currentTarget.dataset.urls;
+
 		if (current === undefined) {
 			return;
 		}

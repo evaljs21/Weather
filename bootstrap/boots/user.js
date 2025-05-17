@@ -76,7 +76,6 @@ $.$define('login', function(options = {}) {
 		}
 
 		const loginDriver = typeof loginType === 'function' ? loginType : $.$logins[loginType];
-		console.log(loginDriver, loginType)
 
 		loginPromise = loginDriver(options).then((res) => {
 			console.log("login success:", res);

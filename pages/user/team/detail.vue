@@ -39,6 +39,7 @@
 			return {
 				id: 0,
 				info: null,
+				data: [],
 				loaded: false,
 			}
 		},
@@ -59,9 +60,12 @@
 		},
 		methods: {
 			// 加载数据
-			loadData() {
+			loadData(page = 1) {
 				return uni.$models.user.getInvitedDetail(this.id).then(res => {
-					this.info = res;
+					this.info = res.info;
+					this.data = page === 1 ? res.data : this.data.concat(res.data);
+					this.more = res.data.length >= res.per_page;
+					this.page = page;
 					this.loaded = true;
 				});
 			},

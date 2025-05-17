@@ -64,6 +64,8 @@
 	}
 </script>
 
-<style>
-
+<style scoped>
+	.cu-card.dynamic>.cu-item>.text-content {
+		max-height: unset;
+	}
 </style>

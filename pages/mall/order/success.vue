@@ -12,7 +12,7 @@
 		</view>
 		<view class="margin">
 			<template v-if="status===1">
-				<button class="cu-btn block lg bg-red round" @tap="linkTo"
+				<button class="cu-btn block lg bg-red round" @tap="linkTo" data-type="redirectTo"
 						data-url="/pages/user/order/list">查看订单</button>
 				<button class="cu-btn block lg margin-top round" @tap="toHome">继续转转</button>
 			</template>

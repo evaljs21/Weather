@@ -1,7 +1,5 @@
 <template>
-	<view class="page" v-if="loaded">
-		<XLoading />
-		<Hint />
+	<custom-page class="page" :loaded="loaded">
 
 		<view class="status-tips bg-gradual-orange">
 			<view class="">
@@ -20,20 +18,21 @@
 			</view>
 
 			<view class="cu-list goods-list">
-				<view class="cu-item padding-sm">
+				<view v-for="(item,index) in info.order_goods_list" :key="item.id" class="cu-item padding-sm">
 					<view class="flex goods-info">
 						<view class="image-wrapper radius lg">
-							<image :src="info.order_goods.goods_cover" mode="aspectFit" lazy-load="true"></image>
+							<image :src="item.goods_cover" mode="aspectFit" lazy-load="true"></image>
 						</view>
 						<view class="content flex-sub padding-lr-sm">
-							<view class="title ellipsis-2 text-black">{{ info.order_goods.goods_title }}</view>
+							<view class="title ellipsis-2 text-black">{{ item.goods_title }}</view>
 							<view class="text-gray text-sm margin-top-xs">
-								<text>{{ info.order_goods.goods_spec || '' }}</text>
+								<text>{{ item.goods_spec || '' }}</text>
 							</view>
 						</view>
 						<view class="action">
-							<view class="text-price text-red text-lg text-bold text-right">{{ info.order_goods.goods_price }}</view>
-							<view class="text-black text-sm text-right">×{{ info.order_goods.goods_num }}</view>
+							<view class="text-price text-red text-lg text-bold text-right">
+								{{ item.goods_price }}</view>
+							<view class="text-black text-sm text-right">×{{ item.goods_num }}</view>
 						</view>
 					</view>
 					<view class="text-sm margin-top-sm">
@@ -60,7 +59,7 @@
 		</view>
 
 		<!-- 卖家收货地址信息 -->
-		<view class="bg-white margin-top">
+		<view class="bg-white margin-top" v-if="info.audit_status==1">
 			<view class="cu-bar bottom-border">
 				<view class="action">
 					<text class="cuIcon-titles text-red"></text>
@@ -90,13 +89,15 @@
 		<!-- 底部操作栏 -->
 		<view class="cu-bar bg-white foot flex justify-end padding-lr">
 			<button class="cu-btn round text-sm margin-left-sm"
-			        @tap.stop.prevent="onDeleteRefund">删除售后单</button>
+					@tap.stop.prevent="onDeleteRefund" v-if="info.status===0">删除售后单</button>
 			<button class="cu-btn round text-sm margin-left-sm"
-			        @tap.stop.prevent="linkTo" :data-url="'/pages/user/refund/express?id='+info.id"
-			        v-if="info.status==10">填写发货物流</button>
+					@tap.stop.prevent="onCancelRefund" v-if="info.status===10">取消申请</button>
+			<button class="cu-btn round text-sm margin-left-sm" @tap.stop.prevent="linkTo"
+					:data-url="'/pages/user/refund/express?id='+info.id"
+					v-if="info.status==20">填写发货物流</button>
 		</view>
-	</view>
-	<PageLoad v-else />
+
+	</custom-page>
 </template>
 
 <script>
@@ -153,8 +154,37 @@
 
 			// 删除售后单
 			onDeleteRefund(index) {
-				this.deleteRefund(this.info, () => {
-					uni.$back();
+				uni.showModal({
+					title: '温馨提示',
+					content: '你确定要删除售后单吗？',
+					showCancel: true,
+					success: res => {
+						uni.$models.order.deleteRefund(this.info.id).then(() => {
+							uni.$back();
+						});
+					},
+				});
+			},
+
+			// 取消售后单
+			onCancelRefund(index) {
+				uni.showModal({
+					title: '温馨提示',
+					content: '你确定要取消售后申请吗？',
+					showCancel: true,
+					success: res => {
+						if (res.cancel) {
+							return;
+						}
+						uni.$models.order.cancelRefund(this.info.id).then(() => {
+							this.info.status = 0;
+							const { stateTip, stateTipColor } = uni.$models.order.parseRefundState(
+								this.info.status
+							);
+							this.info.stateTip = stateTip;
+							this.info.stateTipColor = stateTipColor;
+						});
+					},
 				});
 			}
 		}

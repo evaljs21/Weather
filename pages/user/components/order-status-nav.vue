@@ -53,5 +53,32 @@
 	}
 </script>
 
-<style>
+<style scoped>
+	.order-status {
+		background-color: white;
+		overflow: hidden;
+		position: relative;
+		z-index: 99;
+	}
+
+	.order-status .cu-list [class*=cuIcon] {
+		color: #fa436a;
+		font-size: 28px;
+	}
+
+	.icon-wrapper {
+		position: relative;
+		width: 72rpx;
+		height: 72rpx;
+		margin: 0 auto;
+	}
+
+	.icon-wrapper image {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		left: 0;
+		top: 0;
+		background-color: unset;
+	}
 </style>

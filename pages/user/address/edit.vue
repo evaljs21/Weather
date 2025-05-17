@@ -65,6 +65,8 @@
 			if (!isNaN(this.id)) {
 				title = '编辑收货地址';
 				this.loadData();
+			} else {
+				this.loaded = true;
 			}
 
 			uni.setNavigationBarTitle({

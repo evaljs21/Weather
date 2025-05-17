@@ -108,6 +108,13 @@ export default {
 		}, options);
 	},
 
+	// 删除售后单
+	cancelRefund(id, options = {}) {
+		return uni.$http.get('/app/order/refund/cancel', {
+			id: id
+		}, options);
+	},
+
 	// 提交售后物流信息
 	submitRefundDelivery(data, options = {}) {
 		return uni.$http.post('/app/order/refund/delivery', data, options);
@@ -142,15 +149,19 @@ export default {
 		let stateTip = '',
 			stateTipColor = '#909399';
 		if (0 === state) {
-			stateTip = '审核中';
+			stateTip = '已取消';
+		} else if (1 === state) {
+			stateTip = '卖家已拒绝';
 		} else if (10 === state) {
-			stateTip = '待买家退货';
+			stateTip = '审核中';
 		} else if (20 === state) {
-			stateTip = '待卖家签收';
+			stateTip = '待买家退货';
 		} else if (30 === state) {
-			stateTip = '维权结束';
+			stateTip = '待卖家签收';
 		} else if (40 === state) {
-			stateTip = '商家已拒绝';
+			stateTip = '待卖家打款';
+		} else if (50 === state) {
+			stateTip = '维权结束';
 		}
 		return { stateTip, stateTipColor };
 	},

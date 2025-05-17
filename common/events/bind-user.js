@@ -15,7 +15,7 @@ export default {
 		const globalData = app.globalData;
 
 		let distributorId = parseInt(uni.getStorageSync('distributor_id'));
-		if (options.query.distributor_id) {
+		if (options.query && options.query.distributor_id) {
 			distributorId = parseInt(options.query.distributor_id) || distributorId;
 
 			if (distributorId) {
@@ -28,7 +28,7 @@ export default {
 
 	// 实际处理程序
 	goHandle: function(app, options) {
-		const globalData = options.app.globalData;
+		const globalData = app.globalData;
 
 		const shareUid = parseInt(options.query.share_uid) || 0;
 		if (globalData.shareUid === shareUid && this.isBinded) {
@@ -41,7 +41,7 @@ export default {
 		globalData.shareUid = shareUid;
 
 		console.info("开始绑定分享用户...");
-		$.$login({
+		uni.$login({
 			loginUserInfo: false
 		}).then(() => {
 			this.isBinded = true;

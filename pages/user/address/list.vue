@@ -1,37 +1,38 @@
 <template>
 	<custom-page class="page" :loaded="loaded">
-		<view class="cu-list menu sm-border" v-if="data.length">
-			<view class="cu-item"
-				  v-for="(item, index) in data"
-				  :key="index"
-				  @click="checkAddress(item)"
-				  @longtap="showActionList(index)">
+		<template v-if="data.length">
+			<view class="cu-list menu sm-border">
+				<view class="cu-item"
+					  v-for="(item, index) in data"
+					  :key="index"
+					  @click="checkAddress(item)"
+					  @longtap="showActionList(index)">
 
-				<view class="content padding-tb-sm">
-					<view class="text-gray text-df">
-						<view class="cu-tag bg-red radius text-xs default"
-							  v-if="item.is_default">默认</view>
-						<text>{{ item.province }}{{ item.city }}{{ item.district }}</text>
+					<view class="content padding-tb-sm">
+						<view class="text-gray text-df">
+							<view class="cu-tag bg-red radius text-xs default"
+								  v-if="item.is_default">默认</view>
+							<text>{{ item.province }}{{ item.city }}{{ item.district }}</text>
+						</view>
+						<view class="text-black text-bold text-lg">{{ item.address }}</view>
+						<view class="flex flex-wrap text-gray text-df">
+							<view class="margin-right">{{ item.name }}</view>
+							<view>{{ item.phone }}</view>
+						</view>
 					</view>
-					<view class="text-black text-bold text-lg">{{ item.address }}</view>
-					<view class="flex flex-wrap text-gray text-df">
-						<view class="margin-right">{{ item.name }}</view>
-						<view>{{ item.phone }}</view>
-					</view>
-				</view>
 
-				<view class="action" @tap.stop.prevent="stopPrevent">
-					<view class="cuIcon-write text-bold" @tap="linkTo"
-						  :data-url="'/pages/user/address/edit?id='+item.id"></view>
+					<view class="action" @tap.stop.prevent="stopPrevent">
+						<view class="cuIcon-write text-bold" @tap="linkTo"
+							  :data-url="'/pages/user/address/edit?id='+item.id"></view>
+					</view>
 				</view>
 			</view>
-		</view>
-		<custom-empty type="address" v-else />
-
-		<view class="foot padding">
-			<button class="cu-btn round block bg-red lg" @tap="linkTo"
-					data-url="/pages/user/address/edit">新建收货地址</button>
-		</view>
+			<view class="foot padding">
+				<button class="cu-btn round block bg-red lg" @tap="linkTo"
+						data-url="/pages/user/address/edit">新建收货地址</button>
+			</view>
+		</template>
+		<custom-empty :btns="emptyBtns" v-else />
 	</custom-page>
 </template>
 

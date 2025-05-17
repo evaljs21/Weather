@@ -17,6 +17,10 @@ image {
 	font-size: 0;
 }
 
+image[mode="widthFix"] {
+	height: auto;
+}
+
 form {
 	display: block;
 }
@@ -292,7 +296,7 @@ image.img-full {
 .video-wrapper {}
 
 /**
- * 定位 
+ * 定位
  */
 .absolute-lt {
 	position: absolute;

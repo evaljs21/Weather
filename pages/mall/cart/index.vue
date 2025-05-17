@@ -1,9 +1,5 @@
 <template>
-	<custom-page class="page" :loaded="loaded" @refresh="loadData" :showTechnicalSupport="false"
-				 navbarBackgroundColor="bg-gradual-red">
-		<!-- #ifndef H5 -->
-		<block slot="navbar-title">购物车</block>
-		<!-- #endif -->
+	<custom-page class="page" :loaded="loaded" @refresh="loadData" :showTechnicalSupport="false">
 
 		<!--顶部操作栏-->
 		<view class="cu-bar fixed bg-white" :style="[{top:offsetTop+'px'}]">
@@ -17,7 +13,9 @@
 
 		<template v-if="loaded">
 			<mescroll-uni ref="mescrollRef" @init="mescrollInit"
-						  :top="mescrollOffset.top" :bottom="mescrollOffset.bottom" :safearea="true"
+						  :top="mescrollOffset.top"
+						  :bottom="mescrollOffset.bottom"
+						  :safearea="true"
 						  :down="{auto:false}" :up="{auto:false,empty:false}"
 						  @down="downCallback" @up="upCallback">
 
@@ -31,10 +29,15 @@
 								  :class="item.checked?'cuIcon-roundcheckfill text-red':'cuIcon-roundcheck text-gray'"></text>
 						</view>
 						<view class="image-wrapper radius lg">
-							<image :src="item.goods_cover" mode="aspectFit" lazy-load="true"></image>
+							<image :src="item.goods_cover+'?imageView2/0/q/75/w/160/h/160'" mode="aspectFill" lazy-load="true"></image>
 						</view>
 						<view class="content flex-sub padding-lr-sm">
 							<view class="title ellipsis-2 text-black">{{ item.goods_title }}</view>
+							<view class="tags margin-top-xs" v-if="item.goods && item.goods.tags.length">
+								<view class="cu-tag light bg-red sm"
+									  v-for="tag in item.goods.tags" :key="tag.id">{{tag.title}}</view>
+								<view class="cu-tag light bg-red sm" v-if="item.is_free_freight">包邮</view>
+							</view>
 							<view class="text-gray text-sm margin-top-xs">
 								<text>{{ item.goods_spec || '' }}</text>
 							</view>
@@ -69,11 +72,13 @@
 			</view>
 			<view class="">
 				<template v-if="isEdited">
-					<button class="cu-btn line-red round" @tap="deleteShoppingCart">删除({{choiceGoodsNum}})</button>
+					<button class="cu-btn line-red round" @tap="deleteShoppingCart"
+							:disabled="choiceGoodsNum<1">删除({{choiceGoodsNum}})</button>
 				</template>
 				<template v-else>
-					<button class="cu-btn bg-gradual-red round" @tap="linkTo"
-							:data-url="'../order/create?cart_ids='+choiceGoodsIdListStr">去结算({{choiceGoodsNum}})</button>
+					<button class="cu-btn bg-red round" @tap="linkTo"
+							:data-url="'../order/create?cart_ids='+choiceGoodsIdListStr"
+							:disabled="choiceGoodsNum<1">去结算({{choiceGoodsNum}})</button>
 				</template>
 			</view>
 		</view>
@@ -88,7 +93,8 @@
 		components: { uniNumberBox },
 		data() {
 			return {
-				offsetTop: this.CustomBarUnH5,
+				// offsetTop: this.CustomBarUnH5,
+				offsetTop: 0,
 
 				data: [],
 				page: 1,
@@ -104,7 +110,7 @@
 				}, {
 					text: '看看收藏',
 					class: 'line-red',
-					to: '/pages/mall/favorite/index'
+					to: '/pages/user/favorite'
 				}]
 			};
 		},
@@ -156,7 +162,8 @@
 			// Mescroll 配置
 			mescrollOffset() {
 				return {
-					top: (this.CustomBarUnH5 + uni.upx2px(100)) + 'px',
+					// top: (this.CustomBarUnH5 + uni.upx2px(100)) + 'px',
+					top: uni.upx2px(100) + 'px',
 					bottom: 100
 				};
 			}
@@ -174,7 +181,7 @@
 				this.loadData(mescroll.num).then((res) => {
 					mescroll.endSuccess(res.data.length, this.more);
 				}, () => {
-					mescroll.mescroll.endErr();
+					mescroll.endErr();
 				});
 			},
 			// 加载信息
@@ -240,6 +247,10 @@
 		background-color: white;
 	}
 
+	.goods-list {
+		background-color: white;
+	}
+
 	.goods-list .cu-item .title {
 		font-size: 16px;
 		line-height: 1.2;
@@ -250,6 +261,20 @@
 	.goods-list .cu-item .image-wrapper {
 		width: 160rpx;
 		height: 160rpx;
+	}
+
+	.tags {}
+
+	.tags .cu-tag {
+		padding: 2rpx 4rpx;
+		height: auto;
+		border-radius: 4rpx;
+		margin-right: 5px;
+		margin-bottom: 2px;
+	}
+
+	.tags .cu-tag+.cu-tag {
+		margin-left: 0;
 	}
 
 	.m-price {

@@ -1,8 +1,13 @@
 <template>
 	<custom-page class="page" :loaded="loaded">
-		<custom-search searchClass="bg-white" v-model="search" @search="loadData()" />
+		<custom-search class="search" v-model="search"
+					   :showBackBtn="false"
+					   :showStatusBar="false"
+					   :menuButtonRect="false"
+					   @search="loadData()" />
 		<view class="padding-lr padding-tb-sm bg-white solid-bottom text-grey fixed titlebar">我的团队（{{num}}）</view>
-		<view class="cu-list menu menu-avatar">
+
+		<view class="cu-list menu menu-avatar" v-if="data.length">
 			<view class="cu-item arrow" v-for="item in data" :key="item.id" @tap="linkTo"
 				  :data-url="'./detail?id='+item.id">
 				<view class="cu-avatar radius lg" :style="'background-image:url('+item.avatar+');'"></view>
@@ -14,6 +19,7 @@
 				</view>
 			</view>
 		</view>
+		<custom-empty type="default" v-else></custom-empty>
 	</custom-page>
 </template>
 
@@ -66,6 +72,14 @@
 </script>
 
 <style>
+	.page {
+		background-color: white;
+	}
+
+	.search {
+		background-color: white;
+	}
+
 	.titlebar {
 		position: fixed;
 		left: 0;
