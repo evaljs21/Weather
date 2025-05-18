@@ -2,4 +2,4 @@
 import "./h5.adapter";
 // #endif
 
-export {default as basic} from "./basic";
+export * from "./basic";

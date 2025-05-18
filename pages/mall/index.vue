@@ -29,11 +29,11 @@
 				</swiper-item>
 			</swiper>
 
-			<view class="margin padding-lr radius bg-white">
+			<view class="margin padding-lr radius bg-white" v-if="navList.length">
 				<custom-nav :list="navList"></custom-nav>
 			</view>
 
-			<view class="margin radius bg-white padding-lr">
+			<view class="margin radius bg-white padding-lr" v-if="noticeList.length">
 				<custom-notice :items="noticeList" @icontap="navTo('/pages/index/notices')"></custom-notice>
 			</view>
 
