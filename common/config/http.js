@@ -2,7 +2,7 @@ import $ from '../../bootstrap/$';
 
 let baseURL = typeof HTTP_BASE_URL !== 'undefined' ? HTTP_BASE_URL : 'https://fn.nlplant.cn/api';
 if (process.env.NODE_ENV !== 'production') {
-    baseURL = 'http://mall.test.com/api';
+    // baseURL = 'http://mall.test.com/api';
 }
 
 // http基础配置

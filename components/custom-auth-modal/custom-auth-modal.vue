@@ -12,7 +12,7 @@
 				</view>
 				<!-- #endif -->
 
-				<button @tap="getUserInfo" class="cu-btn bg-red lg block shadow margin-top">登 录</button>
+				<button @tap="getUserInfo" class="cu-btn bg-red round lg block shadow margin-top">登 录</button>
 			</view>
 		</view>
 	</view>

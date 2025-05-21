@@ -61,7 +61,7 @@ function makeBasicGetParams() {
 		sign_type: $.$config.signType,
 
 		// session id
-		session_id: $.$getSessionId(),
+		session_id: $.$getSessionId() || '',
 
 		// 时间戳
 		timestamp: Math.floor(new Date().getTime() / 1000),

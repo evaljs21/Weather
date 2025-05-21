@@ -27,7 +27,7 @@
 					<view class="">
 						<!-- #ifdef MP-WEIXIN -->
 						<button type="default" open-type="contact" class="none">
-							<image src="../../static/icon/user_kefu.png" mode="widthFix" style="width: 33rpx;"></image>
+							<text class="cuIcon-service text-white"></text>
 						</button>
 						<!-- #endif -->
 					</view>
