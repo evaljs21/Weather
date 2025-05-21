@@ -64,6 +64,8 @@ const $ = (() => {
 			platform.isQuickapp = true;
 			platform.name = 'quickapp';
 			//#endif
+
+			return uni;
 		}
 		return wx;
 	}

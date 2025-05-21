@@ -25,7 +25,6 @@ export default {
 		return new Promise((resolve, reject) => {
 			const syncTime = uni.getStorageSync('sync_user_info_time') || null;
 			if (options.force || !syncTime) {
-				console.log(syncTime)
 				uni.$getUserInfo({
 					force: true
 				}).then((res) => {

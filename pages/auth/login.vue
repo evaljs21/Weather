@@ -30,6 +30,7 @@
 			<view class="form-btn-group">
 				<button class="cu-btn block lg" form-type='submit'>登录</button>
 			</view>
+			<navigator class="toPageTips" url="./register" open-type="redirect">没有账号，去注册</navigator>
 		</form>
 	</custom-page>
 </template>
@@ -56,7 +57,13 @@
 		methods: {
 			// 返回上一页
 			navBack() {
-				uni.navigateBack();
+				if (getCurrentPages().length > 1) {
+					uni.navigateBack();
+				} else {
+					uni.redirectTo({
+						url: '/pages/index/index'
+					});
+				}
 			},
 			//同意协议
 			checkAgreement() {
@@ -82,7 +89,13 @@
 					password: this.form.password
 				}).then(() => {
 					uni.$hintSuccess('登录成功！');
-					uni.$back();
+					if (getCurrentPages().length > 1) {
+						uni.$back();
+					} else {
+						uni.redirectTo({
+							url: '/pages/index/index'
+						});
+					}
 				}, (err) => {
 					console.log(err);
 					uni.$hintError(err.errMsg || "登录失败！");
@@ -174,5 +187,14 @@
 		font-size: 46rpx;
 		color: #555;
 		text-shadow: 1px 0px 1px rgba(0, 0, 0, .3);
+	}
+
+	.toPageTips {
+		padding: 20rpx;
+		margin-top: 20rpx;
+		display: inline-block;
+		font-size: 12px;
+		color: #0081ff;
+		margin-left: 30rpx;
 	}
 </style>

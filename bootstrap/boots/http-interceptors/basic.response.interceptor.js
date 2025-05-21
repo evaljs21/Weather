@@ -83,9 +83,9 @@ function resolveHttpStatusError(response) {
 
 	const statusErrors = config.statusErrors;
 	const globalStatusErrors = $.$http.config.logicErrors;
-	if(statusErrors && statusErrors[statusCode]){
+	if (statusErrors && statusErrors[statusCode]) {
 		statusErrors[statusCode](config, response);
-	}else if (globalStatusErrors[statusCode]) {
+	} else if (globalStatusErrors[statusCode]) {
 		globalStatusErrors[statusCode](config, response);
 	}
 

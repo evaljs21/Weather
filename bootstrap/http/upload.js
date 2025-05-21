@@ -9,7 +9,9 @@ export default function upload(options) {
 	const disk = options.disk || upload.defaults.disk || 'remote';
 	const diskConfig = upload.defaults.disks[disk];
 	if (!diskConfig) {
-		return Promise.reject({ errMsg: "找不到磁盘信息！" });
+		return Promise.reject({
+			errMsg: "找不到磁盘信息！"
+		});
 	}
 
 	options = Object.assign({}, diskConfig, options);
@@ -27,14 +29,15 @@ export default function upload(options) {
 	let promise = Promise.resolve();
 
 	files.forEach((file, index) => {
-		options.file = file;
+		const newOptions = Object.assign({}, options);
+		newOptions.file = file;
 		promise = promise.then(() => {
 			const item = {
 				state: 0,
 				index: index,
 			};
 			triggerChange(item);
-			return driver(options);
+			return driver(newOptions);
 		}).then((res) => {
 			const item = {
 				id: res.id,

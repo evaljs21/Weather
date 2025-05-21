@@ -12,30 +12,31 @@
 			</view>
 			<view class="form-group margin-lr">
 				<view class="cu-form-group">
-					<input id="mobile" v-model="form.username" placeholder="手机号" type="text" />
+					<input id="mobile" v-model="form.mobile" placeholder="手机号" type="number" />
 				</view>
 				<view class="cu-form-group">
-					<input id="mobile" v-model="form.username" placeholder="验证码" type="number" />
-					<custom-verify-code />
+					<input v-model="form.code" placeholder="验证码" type="number" />
+					<custom-verify-code url="/verify_code" :mobile="form.mobile" />
 				</view>
 				<view class="cu-form-group">
 					<input id="password" v-model="form.password" placeholder="密码" type="password" />
 				</view>
 				<view class="cu-form-group" style="border-bottom: 1rpx solid #eee;">
-					<input id="password" v-model="form.password" placeholder="确认密码" type="password" />
+					<input id="password" v-model="form.repassword" placeholder="确认密码" type="password" />
 				</view>
 			</view>
 
-			<view class="block text-sm margin-lr" @tap="checkAgreement">
+			<view class="block text-sm margin-lr margin-top" @tap="checkAgreement">
 				<text :class="agreement?'cuIcon-roundcheckfill text-blue':'cuIcon-roundcheck'"></text>
 				<text class="title">请认真阅读并同意</text>
 				<text class="text-blue" @click="navToAgreementDetail('member')">《用户服务协议》</text>
 				<text class="text-blue" @click="navToAgreementDetail('privacy')">《隐私权政策》</text>
 			</view>
 
-			<view class="form-btn-group">
+			<view class="form-btn-group margin-lr margin-top">
 				<button class="cu-btn block lg" form-type='submit'>登录</button>
 			</view>
+			<navigator class="toPageTips" url="./login" open-type="redirect">已有账号，去登录</navigator>
 		</form>
 	</custom-page>
 </template>
@@ -46,15 +47,23 @@
 			return {
 				agreement: false,
 				form: {
-					username: '',
-					password: ''
+					mobile: '',
+					code: '',
+					password: '',
+					repassword: '',		//重复密码
 				}
 			};
 		},
 		methods: {
 			// 返回上一页
 			navBack() {
-				uni.navigateBack();
+				if (getCurrentPages().length > 1) {
+					uni.navigateBack();
+				} else {
+					uni.redirectTo({
+						url: '/pages/index/index'
+					});
+				}
 			},
 			//同意协议
 			checkAgreement() {
@@ -76,12 +85,14 @@
 					return uni.$hintError('请先确认用户服务协议与隐私权政策！');
 				}
 
-				uni.$http.post('login', this.form, {
+				uni.$http.post('register', this.form, {
 					loading: this,
 					hint: this
 				}).then(function() {
-					uni.$hintSuccess('登录成功！');
-					uni.$back();
+					uni.$hintSuccess('注册成功！');
+					uni.redirectTo({
+						url: './login',
+					})
 				});
 			}
 		}
@@ -169,4 +180,5 @@
 		color: #555;
 		text-shadow: 1px 0px 1px rgba(0, 0, 0, .3);
 	}
+	.toPageTips{padding: 20rpx ;margin-top: 20rpx;display: inline-block;font-size: 12px;color: #0081ff;margin-left: 30rpx;}
 </style>

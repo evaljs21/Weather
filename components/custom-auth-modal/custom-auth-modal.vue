@@ -12,7 +12,15 @@
 				</view>
 				<!-- #endif -->
 
-				<button @tap="getUserInfo" class="cu-btn bg-red round lg block shadow margin-top">登 录</button>
+				<template v-if="sessionKey">
+					<button @getphonenumber="decryptPhoneNumber" open-type="getPhoneNumber"
+						class="cu-btn bg-red round lg block shadow margin-top" v-if="!phone">授权手机号</button>
+					<button @tap="getUserInfo" class="cu-btn bg-red round lg block shadow margin-top" v-else>登
+						录</button>
+				</template>
+				<template v-else>
+					<view class="cu-load loading margin-top"></view>
+				</template>
 			</view>
 		</view>
 	</view>
@@ -54,6 +62,9 @@
 				});
 			},
 			decryptPhoneNumber(e) {
+				if (!e.detail.code && !e.detail.encryptedData) {
+					return;
+				}
 				uni.$models.wechat.decryptPhoneNumber({
 					code: e.detail.code,
 					iv: e.detail.iv,
@@ -73,9 +84,12 @@
 			show(allowClose = true) {
 				this.allowClose = allowClose;
 				this.isShow = true;
+
+				this.loadSessionKey();
 			},
 			hide() {
 				this.isShow = false;
+				this.sessionKey = '';
 			},
 			onClose() {
 				if (this.allowClose) {
@@ -88,6 +102,9 @@
 					force: force
 				}).then((sessionKey) => {
 					this.sessionKey = sessionKey;
+				}, () => {
+					uni.$emitter.emit('sys.getUserInfo.result', null);
+					this.hide();
 				});
 			},
 		}

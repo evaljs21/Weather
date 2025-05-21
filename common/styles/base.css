@@ -9,7 +9,7 @@ view,
 button,
 label,
 input,
-textarea {
+textarea,navigator {
 	box-sizing: border-box;
 }
 

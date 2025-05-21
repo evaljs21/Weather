@@ -25,8 +25,7 @@ import observer from '../observer';
 		globalUserInfo._value = userInfo;
 	}
 
-	globalUserInfo.subscribe(function({ detail: user }) {
-		console.info('new user:', user);
+	globalUserInfo.subscribe(function({detail: user}) {
 		$.setStorageSync($.$config.userInfoKey, user);
 	});
 
@@ -66,7 +65,9 @@ $.$define('login', function(options = {}) {
 	}
 
 	if (!loginPromise) {
+		// #ifdef MP
 		$.showNavigationBarLoading();
+		// #endif
 
 		const loginType = $.$http.config.login;
 		if (!loginType) {
@@ -76,12 +77,13 @@ $.$define('login', function(options = {}) {
 		}
 
 		const loginDriver = typeof loginType === 'function' ? loginType : $.$logins[loginType];
-
 		loginPromise = loginDriver(options).then((res) => {
 			console.log("login success:", res);
 
+			// #ifdef MP
 			$.hideLoading();
 			$.hideNavigationBarLoading();
+			// #endif
 
 			$.$user.notify(res.data);
 			$.$setSessionId(res.session_id);
@@ -95,8 +97,10 @@ $.$define('login', function(options = {}) {
 
 			return options;
 		}, (err) => {
+			// #ifdef MP
 			$.hideLoading();
 			$.hideNavigationBarLoading();
+			// #endif
 
 			if (err.isAuthDeny) {
 				$.$hintError($.$http.config.loginAuthFailedTips)
@@ -104,7 +108,10 @@ $.$define('login', function(options = {}) {
 				const data = err.data;
 				const errMsg = err.errMsg || $.$http.config.loginFailedMsg;
 				if (data && data.tips_type === 'alert') {
-					$.showModal({ content: errMsg, showCancel: false });
+					$.showModal({
+						content: errMsg,
+						showCancel: false
+					});
 				} else {
 					$.$hintError(errMsg);
 				}

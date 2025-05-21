@@ -43,7 +43,6 @@
 			initSize: function() {
 				this.widthIn = uni.upx2px(this.width) * this.multiple;
 				this.heightIn = uni.upx2px(this.height) * this.multiple;
-				console.log(this.widthIn, this.heightIn);
 			},
 			// 海报绘制代码
 			draw: function() {
