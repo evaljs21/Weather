@@ -6,7 +6,7 @@
 		</view>
 		<view class="padding text-center flex" v-if="btns.length">
 			<button class="cu-btn lg round margin-right flex-sub" v-for="(item,index) in btns" :key="index"
-					:class="item.class?item.class:'line-grey'" @tap="onBtnClick(item)">{{item.text}}</button>
+				:class="item.class?item.class:'line-grey'" @tap="onBtnClick(item)">{{item.text}}</button>
 		</view>
 	</view>
 </template>
@@ -34,7 +34,13 @@
 		},
 		computed: {
 			image() {
+				const emptyMaps = uni.$config.emptyMaps || {};
+
 				let type = this.type;
+				if (emptyMaps[type]) {
+					type = emptyMaps[type];
+				}
+				
 				return `/static/empty/${type}.png`;
 			},
 		},

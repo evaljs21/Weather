@@ -34,7 +34,9 @@ module.exports = {
 	},
 
 	// 当前用户信息发生变更
-	onUserChange: function({ detail: user }) {
+	onUserChange: function({
+		detail: user
+	}) {
 		console.info('user info change:', user);
 	},
 
@@ -46,4 +48,14 @@ module.exports = {
 
 	// 下来刷新完成提示音
 	stopPullDownRefreshAudio: '',
+
+	// 空数据状态映射，当有多种类型的空状态，但前期并未全部设计出来时使用
+	emptyMaps: {
+		// 'article': 'default', // 当指定article类型时，使用default的设置图片
+	},
+
+	// 默认Loading使用的Icon
+	loadingIcon: '/static/logo.png',
+	// 默认Loading使用的内框颜色
+	loadingInnerColor: '#f37b1d',
 };

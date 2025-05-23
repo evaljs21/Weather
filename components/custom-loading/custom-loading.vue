@@ -1,18 +1,33 @@
 <template>
 	<view class="loading" v-show="isShowLoading">
 		<!-- bounceIn:showLoadingCount, -->
-		<view class="cu-load load-modal animated" :class="{bounceOut:!showLoadingCount}">
-			<image src="/static/logo.png" class="margin-top loading-img" mode="aspectFit"></image>
-			<view class="gray-text text-xs">加载中...</view>
+		<view class="cu-load load-modal animated" :class="{bounceOut:!showLoadingCount}"
+			:style="'border-color:'+innerBorderColor+';'">
+			<image :src="icon" class="margin-top loading-img" mode="aspectFit"></image>
+			<view class="gray-text text-xs">{{loadingText}}</view>
 		</view>
 	</view>
 </template>
 
 <script>
 	export default {
-		props: {},
+		props: {
+			icon: {
+				type: String,
+				default: () => {
+					return uni.$config.loadingIcon || '/static/logo.png';
+				}
+			},
+			innerBorderColor: {
+				type: String,
+				default: () => {
+					return uni.$config.loadingInnerColor || '#f37b1d';
+				}
+			}
+		},
 		data() {
 			return {
+				loadingText: '加载中...',
 				isShowLoading: false,
 				showLoadingCount: 0,
 			};
@@ -28,13 +43,13 @@
 			},
 
 			hideLoading() {
-				this.showLoadingCount--;
-				if (this.showLoadingCount <= 0) {
-					this.showLoadingCount = 0;
-					setTimeout(() => {
-						this.isShowLoading = false;
-					}, 200);
-				}
+				// this.showLoadingCount--;
+				// if (this.showLoadingCount <= 0) {
+				// 	this.showLoadingCount = 0;
+				// 	setTimeout(() => {
+				// 		// this.isShowLoading = false;
+				// 	}, 200);
+				// }
 			},
 
 		}
@@ -54,10 +69,6 @@
 
 	.cu-load {
 		box-shadow: 0 0 30upx rgba(0, 0, 0, 0.1);
-	}
-
-	.cu-load .loading-img {
-		animation: turn 1s linear infinite;
 	}
 
 	@keyframes turn {
@@ -80,5 +91,9 @@
 		100% {
 			-webkit-transform: rotate(360deg);
 		}
+	}
+
+	.cu-load.load-modal::after {
+		border-left-color: inherit;
 	}
 </style>
