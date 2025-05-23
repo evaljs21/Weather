@@ -471,13 +471,15 @@
 		{
 			"path": "pages/auth/login",
 			"style": {
-				"navigationBarTitleText": "登录"
+				"navigationBarTitleText": "登录",
+				"navigationStyle":"custom"
 			}
 		},
 		{
 			"path": "pages/auth/register",
 			"style": {
-				"navigationBarTitleText": "注册"
+				"navigationBarTitleText": "注册",
+				"navigationStyle":"custom"
 			}
 		},
 		{
