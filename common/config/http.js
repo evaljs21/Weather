@@ -1,14 +1,19 @@
 import $ from '../../bootstrap/$';
 
-let baseURL = typeof HTTP_BASE_URL !== 'undefined' ? HTTP_BASE_URL : 'https://fn.flashnet.cn/api';
+let HOST = 'https://fn.flashnet.cn';
 if (process.env.NODE_ENV !== 'production') {
-	// baseURL = 'http://mall.test.com/api';
+	// HOST = 'http://mall.test.com';
 }
+
+const baseURL = typeof HTTP_BASE_URL !== 'undefined' ? HTTP_BASE_URL : HOST + '/api';
 
 // http基础配置
 module.exports = {
 	// 默认选项配置
 	defaults: {
+		// 主机域名
+		host: HOST,
+
 		// 网络请求基础URL
 		baseURL: baseURL,
 
@@ -59,14 +64,12 @@ module.exports = {
 	officialAuthUrl: 'wechat_official/authorize', // 公众号授权接口地址
 
 	// 所有请求回调
-	onRequest: function(config) {
-	},
+	onRequest: function(config) {},
 
 	// 业务成功码
 	successCode: 1,
 	// 业务成功处理器（所有通过的业务请求，都会回调此函数）
-	onSuccess: function(data, response) {
-	},
+	onSuccess: function(data, response) {},
 
 	// 默认提示语
 	loadingText: '请稍后...',

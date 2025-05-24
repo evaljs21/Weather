@@ -43,13 +43,13 @@
 			},
 
 			hideLoading() {
-				// this.showLoadingCount--;
-				// if (this.showLoadingCount <= 0) {
-				// 	this.showLoadingCount = 0;
-				// 	setTimeout(() => {
-				// 		// this.isShowLoading = false;
-				// 	}, 200);
-				// }
+				this.showLoadingCount--;
+				if (this.showLoadingCount <= 0) {
+					this.showLoadingCount = 0;
+					setTimeout(() => {
+						// this.isShowLoading = false;
+					}, 200);
+				}
 			},
 
 		}

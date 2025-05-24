@@ -146,6 +146,7 @@
 			};
 		},
 		onLoad() {
+			console.log(uni.$http.config.defaults.baseURL)
 			// const data = [];
 			// for (let i = 0; i < 1000000; i++) {
 			// 	data.push({
